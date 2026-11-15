@@ -17,12 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ehan.htmlrunner.MainViewModel
 import com.ehan.htmlrunner.data.Project
 import com.ehan.htmlrunner.data.prettyPath
+import com.ehan.htmlrunner.icons
 
 @Composable
 fun HomeScreen(vm: MainViewModel, onOpen: (String) -> Unit) {
@@ -77,7 +72,7 @@ fun HomeScreen(vm: MainViewModel, onOpen: (String) -> Unit) {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { picker.launch(null) },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(imageVector = icons.Add, contentDescription = null) },
                 text = { Text("Tambah proyek") },
             )
         },
@@ -176,7 +171,7 @@ private fun ProjectCard(
             Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Default.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(imageVector = icons.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -196,17 +191,17 @@ private fun ProjectCard(
             }
             Box {
                 IconButton(onClick = { menu = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                    Icon(imageVector = icons.MoreVert, contentDescription = "Menu")
                 }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(
                         text = { Text("Ubah nama") },
-                        leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                        leadingIcon = { Icon(imageVector = icons.Edit, contentDescription = null) },
                         onClick = { menu = false; onRename() },
                     )
                     DropdownMenuItem(
                         text = { Text("Hapus dari daftar") },
-                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                        leadingIcon = { Icon(imageVector = icons.Delete, contentDescription = null) },
                         onClick = { menu = false; onDelete() },
                     )
                 }

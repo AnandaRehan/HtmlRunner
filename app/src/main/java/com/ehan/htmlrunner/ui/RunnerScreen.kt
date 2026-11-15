@@ -13,10 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,16 +39,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.ehan.htmlrunner.R
 import com.ehan.htmlrunner.MainViewModel
 import com.ehan.htmlrunner.data.Project
 import com.ehan.htmlrunner.data.SafTree
 import com.ehan.htmlrunner.data.changes
 import com.ehan.htmlrunner.web.WebController
+import com.ehan.htmlrunner.icons
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -146,18 +146,21 @@ private fun RunnerContent(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                        Icon(
+                            imageVector = icons.ArrowBack,
+                            contentDescription = "Kembali"
+                        )
                     }
                 },
                 actions = {
                     IconButton(
                         onClick = { scope.launch { controller.goHome() } },
                         enabled = accessible == true,
-                    ) { Icon(Icons.Default.Home, contentDescription = "Ke halaman utama proyek") }
+                    ) { Icon(imageVector = icons.Home, contentDescription = "Ke halaman utama proyek") }
                     IconButton(
                         onClick = { scope.launch { controller.refresh() } },
                         enabled = accessible == true,
-                    ) { Icon(Icons.Default.Refresh, contentDescription = "Refresh") }
+                    ) { Icon(imageVector = icons.Refresh, contentDescription = "Refresh") }
                     Text("Auto", style = MaterialTheme.typography.labelLarge)
                     Switch(
                         checked = autoRefresh,
