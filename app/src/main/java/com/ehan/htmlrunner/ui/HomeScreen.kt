@@ -50,7 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ehan.htmlrunner.MainViewModel
 import com.ehan.htmlrunner.data.Project
 import com.ehan.htmlrunner.data.prettyPath
-import com.ehan.htmlrunner.icons
+import com.ehan.htmlrunner.ui.theme.Icons
 
 @Composable
 fun HomeScreen(vm: MainViewModel, onOpen: (String) -> Unit) {
@@ -72,7 +72,7 @@ fun HomeScreen(vm: MainViewModel, onOpen: (String) -> Unit) {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { picker.launch(null) },
-                icon = { Icon(imageVector = icons.Add, contentDescription = null) },
+                icon = { Icon(imageVector = Icons.Add, contentDescription = null) },
                 text = { Text("Tambah proyek") },
             )
         },
@@ -171,7 +171,7 @@ private fun ProjectCard(
             Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(imageVector = icons.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(imageVector = Icons.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
@@ -191,17 +191,17 @@ private fun ProjectCard(
             }
             Box {
                 IconButton(onClick = { menu = true }) {
-                    Icon(imageVector = icons.MoreVert, contentDescription = "Menu")
+                    Icon(imageVector = Icons.MoreVert, contentDescription = "Menu")
                 }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     DropdownMenuItem(
                         text = { Text("Ubah nama") },
-                        leadingIcon = { Icon(imageVector = icons.Edit, contentDescription = null) },
+                        leadingIcon = { Icon(imageVector = Icons.Edit, contentDescription = null) },
                         onClick = { menu = false; onRename() },
                     )
                     DropdownMenuItem(
                         text = { Text("Hapus dari daftar") },
-                        leadingIcon = { Icon(imageVector = icons.Delete, contentDescription = null) },
+                        leadingIcon = { Icon(imageVector = Icons.Delete, contentDescription = null) },
                         onClick = { menu = false; onDelete() },
                     )
                 }

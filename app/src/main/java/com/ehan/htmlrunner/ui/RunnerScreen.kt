@@ -52,7 +52,7 @@ import com.ehan.htmlrunner.data.Project
 import com.ehan.htmlrunner.data.SafTree
 import com.ehan.htmlrunner.data.changes
 import com.ehan.htmlrunner.web.WebController
-import com.ehan.htmlrunner.icons
+import com.ehan.htmlrunner.ui.theme.Icons
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -147,7 +147,7 @@ private fun RunnerContent(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = icons.ArrowBack,
+                            imageVector = Icons.ArrowBack,
                             contentDescription = "Kembali"
                         )
                     }
@@ -156,11 +156,11 @@ private fun RunnerContent(
                     IconButton(
                         onClick = { scope.launch { controller.goHome() } },
                         enabled = accessible == true,
-                    ) { Icon(imageVector = icons.Home, contentDescription = "Ke halaman utama proyek") }
+                    ) { Icon(imageVector = Icons.Home, contentDescription = "Ke halaman utama proyek") }
                     IconButton(
                         onClick = { scope.launch { controller.refresh() } },
                         enabled = accessible == true,
-                    ) { Icon(imageVector = icons.Refresh, contentDescription = "Refresh") }
+                    ) { Icon(imageVector = Icons.Refresh, contentDescription = "Refresh") }
                     Text("Auto", style = MaterialTheme.typography.labelLarge)
                     Switch(
                         checked = autoRefresh,
