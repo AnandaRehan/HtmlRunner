@@ -2,13 +2,24 @@
 
 package com.ehan.htmlrunner.ui
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.areNavigationBarsVisible
+import androidx.compose.foundation.layout.areStatusBarsVisible
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,7 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,8 +50,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -50,8 +62,8 @@ import com.ehan.htmlrunner.MainViewModel
 import com.ehan.htmlrunner.data.Project
 import com.ehan.htmlrunner.data.SafTree
 import com.ehan.htmlrunner.data.changes
+import com.ehan.htmlrunner.ui.icons.Icons
 import com.ehan.htmlrunner.web.WebController
-import com.ehan.htmlrunner.ui.theme.Icons
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -115,62 +127,42 @@ private fun RunnerContent(
         }
     }
 
+    // Mode imersif: bar sistem (status + navigasi) disembunyikan selama proyek berjalan.
+    // Geser dari tepi layar untuk memunculkannya sebentar; top bar mengikuti.
+    val window = remember(context) { context.findActivity()?.window }
+    val immersive = accessible == true
+    fun applyImmersive(on: Boolean) {
+        val w = window ?: return
+        val controller = WindowCompat.getInsetsController(w, w.decorView)
+        if (on) {
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+        } else {
+            controller.show(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+    DisposableEffect(immersive) {
+        applyImmersive(immersive)
+        onDispose { applyImmersive(false) }
+    }
+
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { controller.webView.onPause() }
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { controller.webView.onResume() }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        controller.webView.onResume()
+        applyImmersive(immersive)
+    }
     BackHandler(enabled = controller.canGoBack) { controller.webView.goBack() }
+
+    val barsVisible = WindowInsets.areStatusBarsVisible || WindowInsets.areNavigationBarsVisible
+    val showTopBar = barsVisible || !immersive
 
     val statusLine = buildString {
         append(if (autoRefresh) "Auto refresh: aktif" else "Auto refresh: mati")
         controller.lastLoaded?.let { append(" • dimuat $it") }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            project.displayName,
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            statusLine,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.ArrowBack,
-                            contentDescription = "Kembali"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { scope.launch { controller.goHome() } },
-                        enabled = accessible == true,
-                    ) { Icon(imageVector = Icons.Home, contentDescription = "Ke halaman utama proyek") }
-                    IconButton(
-                        onClick = { scope.launch { controller.refresh() } },
-                        enabled = accessible == true,
-                    ) { Icon(imageVector = Icons.Refresh, contentDescription = "Refresh") }
-                    Text("Auto", style = MaterialTheme.typography.labelLarge)
-                    Switch(
-                        checked = autoRefresh,
-                        onCheckedChange = onToggleAuto,
-                        modifier = Modifier.padding(start = 6.dp, end = 12.dp),
-                    )
-                },
-            )
-        },
-    ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+    Surface(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize()) {
             when (accessible) {
                 null -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 false -> Column(
@@ -188,12 +180,67 @@ private fun RunnerContent(
                     Button(onClick = { relinkPicker.launch(null) }) { Text("Pilih ulang folder") }
                 }
                 true -> {
+                    // WebView selalu layar penuh; top bar hanya menumpuk di atasnya
+                    // supaya halaman tidak ter-relayout setiap bar muncul/hilang.
                     AndroidView(factory = { controller.webView }, modifier = Modifier.fillMaxSize())
                     if (controller.loading) {
-                        LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter))
+                        LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.BottomCenter))
                     }
                 }
             }
+
+            AnimatedVisibility(
+                visible = showTopBar,
+                modifier = Modifier.align(Alignment.TopCenter),
+                enter = slideInVertically { -it } + fadeIn(),
+                exit = slideOutVertically { -it } + fadeOut(),
+            ) {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                project.displayName,
+                                style = MaterialTheme.typography.titleMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                statusLine,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.ArrowBack, contentDescription = "Kembali")
+                        }
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = { scope.launch { controller.goHome() } },
+                            enabled = accessible == true,
+                        ) { Icon(Icons.Home, contentDescription = "Ke halaman utama proyek") }
+                        IconButton(
+                            onClick = { scope.launch { controller.refresh() } },
+                            enabled = accessible == true,
+                        ) { Icon(Icons.Refresh, contentDescription = "Refresh") }
+                        Text("Auto", style = MaterialTheme.typography.labelLarge)
+                        Switch(
+                            checked = autoRefresh,
+                            onCheckedChange = onToggleAuto,
+                            modifier = Modifier.padding(start = 6.dp, end = 12.dp),
+                        )
+                    },
+                )
+            }
         }
     }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
