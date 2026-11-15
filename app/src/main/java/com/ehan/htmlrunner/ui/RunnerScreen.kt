@@ -46,7 +46,6 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.ehan.htmlrunner.R
 import com.ehan.htmlrunner.MainViewModel
 import com.ehan.htmlrunner.data.Project
 import com.ehan.htmlrunner.data.SafTree
