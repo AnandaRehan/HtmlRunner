@@ -27,7 +27,7 @@ fun MainScreenPreview() {
     val app_name: String = "HTML Runner"
     HtmlRunnerTheme {
         Text(
-            text = app_name
+            text = app_name,
             textAlign = TextAlign.Center,
         )
     }
