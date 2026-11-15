@@ -9,7 +9,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.style.TextAlign
 import com.ehan.htmlrunner.ui.AppNav
-import com.ehan.htmlrunner.R
 import com.ehan.htmlrunner.ui.theme.HtmlRunnerTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,7 +24,7 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    val app_name: String = R.string.app_name ?: "HTML Runer"
+    val app_name: String = "HTML Runer"
     HtmlRunnerTheme {
         Text(
             text = app_name,
