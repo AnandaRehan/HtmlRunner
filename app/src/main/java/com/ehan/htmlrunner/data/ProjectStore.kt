@@ -20,11 +20,15 @@ class ProjectStore(context: Context) {
     private val store = context.applicationContext.dataStore
     private val projectsKey = stringPreferencesKey("projects_json")
     private val autoRefreshKey = booleanPreferencesKey("auto_refresh")
+    private val fullscreenKey = booleanPreferencesKey("fullscreen")
 
     val projects: Flow<List<Project>> = store.data.map { decode(it[projectsKey]) }
 
     /** Pengaturan global refresh otomatis (default: aktif). */
     val autoRefresh: Flow<Boolean> = store.data.map { it[autoRefreshKey] ?: true }
+
+    /** Mode layar penuh saat proyek berjalan (default: aktif). */
+    val fullscreen: Flow<Boolean> = store.data.map { it[fullscreenKey] ?: true }
 
     suspend fun update(transform: (List<Project>) -> List<Project>) {
         store.edit { prefs ->
@@ -34,6 +38,10 @@ class ProjectStore(context: Context) {
 
     suspend fun setAutoRefresh(enabled: Boolean) {
         store.edit { it[autoRefreshKey] = enabled }
+    }
+
+    suspend fun setFullscreen(enabled: Boolean) {
+        store.edit { it[fullscreenKey] = enabled }
     }
 
     private fun decode(json: String?): List<Project> {

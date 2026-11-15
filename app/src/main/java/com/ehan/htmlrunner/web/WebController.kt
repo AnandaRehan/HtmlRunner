@@ -17,9 +17,13 @@ import android.webkit.WebViewClient
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.webkit.WebViewAssetLoader
 import com.ehan.htmlrunner.data.SafTree
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -56,7 +60,22 @@ class WebController(
         .addPathHandler("/", SafPathHandler(tree))
         .build()
 
+    private val scope = MainScope()
+
     val webView: WebView = buildWebView()
+
+    /**
+     * Pembungkus WebView. Tarik halaman ke bawah dari paling atas = refresh manual.
+     * Dinyalakan hanya saat refresh otomatis mati (diatur dari UI lewat isEnabled).
+     */
+    val container: SwipeRefreshLayout = SwipeRefreshLayout(context).apply {
+        addView(
+            webView,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
+        )
+        setOnChildScrollUpCallback { _, _ -> webView.scrollY > 0 }
+        setOnRefreshListener { scope.launch { refresh() } }
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun buildWebView(): WebView = WebView(context).apply {
@@ -96,6 +115,7 @@ class WebController(
 
             override fun onPageFinished(view: WebView, url: String?) {
                 loading = false
+                container.isRefreshing = false
                 canGoBack = view.canGoBack()
                 lastLoaded = LocalTime.now().format(timeFormat)
                 if (pendingScrollY > 0) {
@@ -149,8 +169,10 @@ class WebController(
     }
 
     fun destroy() {
+        scope.cancel()
         webView.stopLoading()
-        (webView.parent as? ViewGroup)?.removeView(webView)
+        (container.parent as? ViewGroup)?.removeView(container)
+        container.removeAllViews()
         webView.destroy()
     }
 }

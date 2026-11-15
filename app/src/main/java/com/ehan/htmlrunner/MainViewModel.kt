@@ -30,6 +30,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val autoRefresh: StateFlow<Boolean> =
         store.autoRefresh.stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
+    val fullscreen: StateFlow<Boolean> =
+        store.fullscreen.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     private val _events = MutableSharedFlow<String>(extraBufferCapacity = 8)
     val events: SharedFlow<String> = _events
 
@@ -94,6 +97,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setAutoRefresh(enabled: Boolean) {
         viewModelScope.launch { store.setAutoRefresh(enabled) }
+    }
+
+    fun setFullscreen(enabled: Boolean) {
+        viewModelScope.launch { store.setFullscreen(enabled) }
     }
 
     private fun takeRead(uri: Uri): Boolean = try {

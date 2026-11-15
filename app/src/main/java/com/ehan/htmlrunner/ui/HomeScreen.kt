@@ -56,6 +56,7 @@ import com.ehan.htmlrunner.ui.icons.Icons
 fun HomeScreen(vm: MainViewModel, onOpen: (String) -> Unit) {
     val projects by vm.projects.collectAsStateWithLifecycle()
     val autoRefresh by vm.autoRefresh.collectAsStateWithLifecycle()
+    val fullscreen by vm.fullscreen.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     var renaming by remember { mutableStateOf<Project?>(null) }
     var deleting by remember { mutableStateOf<Project?>(null) }
@@ -89,7 +90,20 @@ fun HomeScreen(vm: MainViewModel, onOpen: (String) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item(key = "auto") {
-                    AutoRefreshCard(checked = autoRefresh, onChange = vm::setAutoRefresh)
+                    SettingCard(
+                        title = "Refresh otomatis",
+                        description = "Muat ulang otomatis saat file di folder asli berubah. Kalau mati, tarik halaman ke bawah dari paling atas untuk refresh manual.",
+                        checked = autoRefresh,
+                        onChange = vm::setAutoRefresh,
+                    )
+                }
+                item(key = "fullscreen") {
+                    SettingCard(
+                        title = "Layar penuh",
+                        description = "Sembunyikan bar status dan tombol navigasi saat proyek berjalan. Matikan kalau bagian atas layar terhalang kamera depan.",
+                        checked = fullscreen,
+                        onChange = vm::setFullscreen,
+                    )
                 }
                 if (list.isEmpty()) {
                     item(key = "empty") { EmptyState() }
@@ -128,13 +142,13 @@ fun HomeScreen(vm: MainViewModel, onOpen: (String) -> Unit) {
 }
 
 @Composable
-private fun AutoRefreshCard(checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun SettingCard(title: String, description: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     Card(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Refresh otomatis", style = MaterialTheme.typography.titleMedium)
+                Text(title, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Muat ulang halaman otomatis saat file di folder asli berubah.",
+                    description,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
