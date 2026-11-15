@@ -22,8 +22,9 @@ class MainScreenScreenshotTest {
 
     @Test
     fun mainScreen() {
+        
         composeRule.setContent {
-            
+            MainScreenPreview()
         }
         // Saved to app/src/test/screenshots/<package>.<class>.<method>.png
         composeRule.onRoot().captureRoboImage()

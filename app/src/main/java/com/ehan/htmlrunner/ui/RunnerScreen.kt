@@ -154,7 +154,7 @@ private fun RunnerContent(
     }
     BackHandler(enabled = controller.canGoBack) { controller.webView.goBack() }
 
-    val barsVisible = WindowInsets.areStatusBarsVisible || WindowInsets.areNavigationBarsVisible
+    val barsVisible = WindowInsets.areNavigationBarsVisible || WindowInsets.areStatusBarsVisible
     val showTopBar = barsVisible || !immersive
 
     val statusLine = buildString {
